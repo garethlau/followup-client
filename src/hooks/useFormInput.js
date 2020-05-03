@@ -25,6 +25,7 @@ const useFormInput = (initialValue) => {
   }
   return {
     value: value,
+    setValue: setValue,
     onChange: handleChange,
     clear: clear,
     hasError: hasError,
