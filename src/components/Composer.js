@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import useMedia from "../hooks/useMedia";
-import Editor from "./Editor";
 import ReviewerManager from "./ReviewerManager";
 
 import {
@@ -24,10 +23,12 @@ import { DateInput, TimePrecision } from "@blueprintjs/datetime";
 import useFormInput from "../hooks/useFormInput";
 import useTagInput from "../hooks/useTagInput";
 import useDateInput from "../hooks/useDateInput";
+import RichTextEditor from "react-rte";
 
 export default function Composer() {
   const subject = useFormInput("");
   const sendDate = useDateInput(new Date());
+
   const commitMessage = useFormInput("");
 
   const columnCount = useMedia(["(min-width: 550px)"], [2], 1);
@@ -35,8 +36,13 @@ export default function Composer() {
   const cc = useTagInput();
   const bcc = useTagInput();
   const tags = useTagInput();
+  const [body, setBody] = useState(RichTextEditor.createEmptyValue());
 
   /* FUNCTIONS */
+
+  function onBodyChange(value) {
+    setBody(value);
+  }
 
   function save() {
     let data = {
@@ -253,7 +259,7 @@ export default function Composer() {
                 ) : null
               }
               addOnBlur={true}
-              tagProps={{minimal: true}}
+              tagProps={{ minimal: true }}
             />
           </div>
 
@@ -272,7 +278,7 @@ export default function Composer() {
                 ) : null
               }
               addOnBlur={true}
-              tagProps={{minimal: true}}
+              tagProps={{ minimal: true }}
             />
           </div>
           <div style={{ marginBottom: "10px" }}>
@@ -290,11 +296,18 @@ export default function Composer() {
                 ) : null
               }
               addOnBlur={true}
-              tagProps={{minimal: true}}
+              tagProps={{ minimal: true }}
             />
           </div>
 
-          <Editor />
+          <RichTextEditor
+            editorClassName={"email-body-editor"}
+            placeholder="Body..."
+            style={{ minHeight: "400px" }}
+            spellCheck={true}
+            onChange={onBodyChange}
+            value={body}
+          />
           <div style={{ marginTop: "10px", ...inputStyle, width: "auto" }}>
             <TagInput
               placeholder="Add tags to identify this email"

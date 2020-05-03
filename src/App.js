@@ -4,7 +4,6 @@ import "./App.css";
 
 import Home from "./components/Home.js";
 import Dashboard from "./components/Dashboard.js";
-import Editor from "./components/Editor.js";
 import Composer from "./components/Composer";
 
 function App() {
@@ -13,7 +12,6 @@ function App() {
       <Switch>
         <Route path="/" exact component={Home} />
         <Route path="/dashboard" component={Dashboard} />
-        <Route path="/edit" component={Editor} />
         <Route path="/compose" component={Composer} />
       </Switch>
     </Router>
