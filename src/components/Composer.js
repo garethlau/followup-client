@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import useMedia from "../hooks/useMedia";
 import Editor from "./Editor";
 import ReviewerManager from "./ReviewerManager";
@@ -16,14 +16,40 @@ import {
   Classes,
   AnchorButton,
   MenuItem,
+  Position,
 } from "@blueprintjs/core";
 
-import { Suggest } from "@blueprintjs/select";
+import { DateInput, TimePrecision } from "@blueprintjs/datetime";
+
+import useFormInput from "../hooks/useFormInput";
+import useTagInput from "../hooks/useTagInput";
+import useDateInput from "../hooks/useDateInput";
 
 export default function Composer() {
+  const subject = useFormInput("");
+  const sendDate = useDateInput(new Date());
+  const commitMessage = useFormInput("");
+
   const columnCount = useMedia(["(min-width: 550px)"], [2], 1);
+  const to = useTagInput();
+  const cc = useTagInput();
+  const bcc = useTagInput();
+  const tags = useTagInput();
 
   /* FUNCTIONS */
+
+  function save() {
+    let data = {
+      subject: subject.value,
+      sendDate: sendDate.value,
+      to: to.values,
+      cc: cc.values,
+      bcc: bcc.values,
+      tags: tags.values,
+    };
+    console.log(data);
+  }
+
   const reviewers = [
     {
       name: "Gareth Lau",
@@ -193,21 +219,111 @@ export default function Composer() {
               options={["v1", "v2", "v3"]}
             />
           </div>
-          <InputGroup style={inputStyle} placeholder="Subject" />
-          <InputGroup style={inputStyle} placeholder="Send Date" />
-          <InputGroup style={inputStyle} placeholder="To" />
-          <InputGroup style={inputStyle} placeholder="Send By" />
+          <InputGroup
+            style={inputStyle}
+            value={subject.value}
+            onChange={subject.onChange}
+            placeholder="Subject"
+          />
+          <div style={inputStyle}>
+            <DateInput
+              fill
+              formatDate={(date) =>
+                date === null ? "" : date.toLocaleDateString()
+              }
+              parseDate={(str) => new Date(Date.parse(str))}
+              placeholder={"Send Date"}
+              onChange={sendDate.onChange}
+              popoverProps={{ position: Position.BOTTOM }}
+            />
+          </div>
+          <InputGroup style={inputStyle} placeholder="From" />
+          <div style={{ marginBottom: "10px" }}>
+            <TagInput
+              placeholder="To"
+              values={to.values}
+              onChange={to.onChange}
+              rightElement={
+                to.values.length > 0 ? (
+                  <Button
+                    onClick={() => to.clear()}
+                    icon="cross"
+                    minimal={true}
+                  />
+                ) : null
+              }
+              addOnBlur={true}
+              tagProps={{minimal: true}}
+            />
+          </div>
+
+          <div style={{ marginBottom: "10px" }}>
+            <TagInput
+              placeholder="Cc"
+              values={cc.values}
+              onChange={cc.onChange}
+              rightElement={
+                cc.values.length > 0 ? (
+                  <Button
+                    onClick={() => cc.clear()}
+                    icon="cross"
+                    minimal={true}
+                  />
+                ) : null
+              }
+              addOnBlur={true}
+              tagProps={{minimal: true}}
+            />
+          </div>
+          <div style={{ marginBottom: "10px" }}>
+            <TagInput
+              placeholder="Bcc"
+              values={bcc.values}
+              onChange={bcc.onChange}
+              rightElement={
+                bcc.values.length > 0 ? (
+                  <Button
+                    onClick={() => bcc.clear()}
+                    icon="cross"
+                    minimal={true}
+                  />
+                ) : null
+              }
+              addOnBlur={true}
+              tagProps={{minimal: true}}
+            />
+          </div>
+
           <Editor />
           <div style={{ marginTop: "10px", ...inputStyle, width: "auto" }}>
             <TagInput
-              placeholder="Separate values with commas..."
-              rightElement={<Button text="clear" />}
-              values={["hello", "nice"]}
+              placeholder="Add tags to identify this email"
+              leftIcon="tag"
+              rightElement={
+                tags.values.length > 0 ? (
+                  <Button
+                    onClick={() => tags.clear()}
+                    icon="cross"
+                    minimal={true}
+                  />
+                ) : null
+              }
+              values={tags.values}
+              onChange={tags.onChange}
             />
           </div>
           <InputGroup
-            rightElement={<Button intent={Intent.PRIMARY} text="Save as v4" />}
+            rightElement={
+              <Button
+                onClick={save}
+                intent={Intent.PRIMARY}
+                text="Save as v4"
+              />
+            }
             placeholder="Commit message"
+            leftIcon="info-sign"
+            value={commitMessage.value}
+            onChange={commitMessage.onChange}
           />
         </div>
       </div>
