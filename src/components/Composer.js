@@ -52,6 +52,7 @@ export default function Composer() {
   const [comments, setComments] = useState([]);
 
   // Reviewer state
+  const [isOpen, setIsOpen] = useState(false);
 
   /* FUNCTIONS */
 
@@ -65,6 +66,7 @@ export default function Composer() {
         .get(`${BASE_URL}/api/v1/draft/${jsonSearch.draftId}`, config)
         .then((res) => {
           let { draft } = res.data;
+          console.log(draft);
           setDraft(draft);
           let versionNumber = draft.versions.length;
 
@@ -80,7 +82,7 @@ export default function Composer() {
           setVersionData(draft.versions[draft.versions.length - 1]);
 
           // Set comment data
-          setComments(draft.comments)
+          setComments(draft.comments);
         })
         .catch((err) => {
           console.log(err);
@@ -161,27 +163,33 @@ export default function Composer() {
         config
       );
       comment.clear();
-      console.log(result.data)
+      console.log(result.data);
       setComments(result.data.comments);
     } catch (err) {
       console.log(err);
     }
   }
 
-  const reviewers = [
-    {
-      name: "Gareth Lau",
-      version: "v2",
-      lastSeen: "03/02/2020",
-      approved: true,
-    },
-    {
-      name: "John Doe",
-      version: "v1",
-      lastSeen: "02/27/2020",
-      approved: false,
-    },
-  ];
+  const [members, setMembers] = useState([]);
+  useEffect(() => {
+    axios
+      .get(`${BASE_URL}/api/v1/organization/someId`)
+      .then((res) => {
+        console.log(res);
+        let tmp = res.data.users.map((user) => {
+          return {
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id,
+          };
+        });
+        console.log(tmp);
+        setMembers(tmp);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   /* STYLES */
 
@@ -202,55 +210,74 @@ export default function Composer() {
     <div style={containerStyle}>
       <div style={{ padding: "20px" }}>
         <div style={{ border: "solid 1px lightgrey", padding: "20px" }}>
-          {reviewers.map((review) => (
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "24px 3fr 1fr 2fr 2fr",
-                columnGap: "10px",
-                gridTemplateRows: "24px",
-                marginBottom: "10px",
-              }}
-            >
-              <div>
-                <img
-                  style={{
-                    borderRadius: "50%",
-                    width: "20px",
-                    height: "20px",
-                    margin: "2px",
-                  }}
-                  src="https://www.w3schools.com/howto/img_avatar.png"
-                  alt="profile"
-                />
-              </div>
-              <div style={{ display: "table", height: "24px" }}>
-                <div style={{ display: "table-cell", verticalAlign: "middle" }}>
-                  {review.name}
+          {draft.reviewers &&
+            draft.reviewers.length > 0 &&
+            draft.reviewers.map((reviewer) => (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "24px 3fr 1fr 2fr 2fr",
+                  columnGap: "10px",
+                  gridTemplateRows: "24px",
+                  marginBottom: "10px",
+                }}
+              >
+                <div>
+                  <img
+                    style={{
+                      borderRadius: "50%",
+                      width: "20px",
+                      height: "20px",
+                      margin: "2px",
+                    }}
+                    src="https://www.w3schools.com/howto/img_avatar.png"
+                    alt="profile"
+                  />
                 </div>
-              </div>
+                <div style={{ display: "table", height: "24px" }}>
+                  <div
+                    style={{ display: "table-cell", verticalAlign: "middle" }}
+                  >
+                    {reviewer.firstName + " " + reviewer.lastName}
+                  </div>
+                </div>
 
-              <div style={{ display: "table", height: "24px" }}>
-                <div style={{ display: "table-cell", verticalAlign: "middle" }}>
-                  {review.version}
+                <div style={{ display: "table", height: "24px" }}>
+                  <div
+                    style={{ display: "table-cell", verticalAlign: "middle" }}
+                  >
+                    {reviewer.version || "Not seen"}
+                  </div>
                 </div>
-              </div>
 
-              <div style={{ display: "table", height: "24px" }}>
-                <div style={{ display: "table-cell", verticalAlign: "middle" }}>
-                  {review.lastSeen}
+                <div style={{ display: "table", height: "24px" }}>
+                  <div
+                    style={{ display: "table-cell", verticalAlign: "middle" }}
+                  >
+                    {reviewer.lastSeen || "Not seen"}
+                  </div>
+                </div>
+                <div style={{ display: "table", height: "24px" }}>
+                  <div
+                    style={{ display: "table-cell", verticalAlign: "middle" }}
+                  >
+                    {reviewer.approved ? "Approved" : "Not Approved"}
+                  </div>
                 </div>
               </div>
-              <div style={{ display: "table", height: "24px" }}>
-                <div style={{ display: "table-cell", verticalAlign: "middle" }}>
-                  {review.approved ? "Approved" : "Not Approved"}
-                </div>
-              </div>
-            </div>
-          ))}
+            ))}
           <div style={{ textAlign: "center", marginTop: "10px" }}>
-            <Button text="Add Reviewer" intent={Intent.PRIMARY} />
-            <ReviewerManager isOpen={false} />
+            <Button
+              onClick={() => setIsOpen(true)}
+              text="Add Reviewer"
+              intent={Intent.PRIMARY}
+            />
+            <ReviewerManager
+              reviewers={draft.reviewers || []}
+              members={members}
+              isOpen={isOpen}
+              setIsOpen={setIsOpen}
+            />
           </div>
         </div>
         <div
