@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import Nav from "./Nav";
 import { Button, Intent, HTMLTable } from "@blueprintjs/core";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
@@ -43,7 +42,6 @@ export default function Dashboard() {
 
   return (
     <div>
-      <Nav />
       <HTMLTable>
         <thead>
           <tr>
