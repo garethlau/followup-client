@@ -27,10 +27,12 @@ import RichTextEditor, { EditorValue } from "react-rte";
 import utils from "../utils";
 import axios from "axios";
 import { BASE_URL } from "../constants";
-import { convertToRaw, convertFromRaw } from "draft-js";
+import { useParams } from "react-router-dom";
 
 export default function Composer() {
   const columnCount = useMedia(["(min-width: 550px)"], [2], 1);
+
+  const { orgName } = useParams();
 
   // Version and editor state
   const [versions, setVersions] = useState([]);
@@ -172,24 +174,17 @@ export default function Composer() {
 
   const [members, setMembers] = useState([]);
   useEffect(() => {
+    const config = utils.getJWTConfig();
     axios
-      .get(`${BASE_URL}/api/v1/organization/someId`)
+      .get(`${BASE_URL}/api/v1/organization/${orgName}/users`, config)
       .then((res) => {
         console.log(res);
-        let tmp = res.data.users.map((user) => {
-          return {
-            firstName: user.firstName,
-            lastName: user.lastName,
-            _id: user._id,
-          };
-        });
-        console.log(tmp);
-        setMembers(tmp);
+        setMembers(res.data.users.concat(res.data.admins));
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+  }, [orgName]);
 
   /* STYLES */
 
