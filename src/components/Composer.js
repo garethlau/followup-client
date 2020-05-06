@@ -38,7 +38,7 @@ export default function Composer() {
   const [versions, setVersions] = useState([]);
   const subject = useFormInput("");
   const from = useFormInput("");
-  const sendDate = useDateInput(new Date());
+  const sendDate = useDateInput(Date());
   const commitMessage = useFormInput("");
   const to = useTagInput();
   const cc = useTagInput();
@@ -68,13 +68,12 @@ export default function Composer() {
         .get(`${BASE_URL}/api/v1/draft/${jsonSearch.draftId}`, config)
         .then((res) => {
           let { draft } = res.data;
-          console.log(draft);
           setDraft(draft);
           let versionNumber = draft.versions.length;
 
           // Build the version select dropdown
           let tmpVersions = [];
-          for (let i = 0; i <= versionNumber; i++) {
+          for (let i = 1; i <= versionNumber; i++) {
             tmpVersions.push(`v${i}`);
           }
           setVersions(tmpVersions);
@@ -134,7 +133,6 @@ export default function Composer() {
       tags: tags.values,
       commitMessage: commitMessage.value,
     };
-    console.log(data);
     let { draftId } = utils.searchToJSON(window.location.search);
     let config = utils.getJWTConfig();
     try {
@@ -143,7 +141,6 @@ export default function Composer() {
         data,
         config
       );
-      console.log(result);
     } catch (err) {
       console.log(err);
     }
@@ -165,7 +162,6 @@ export default function Composer() {
         config
       );
       comment.clear();
-      console.log(result.data);
       setComments(result.data.comments);
     } catch (err) {
       console.log(err);
@@ -178,7 +174,6 @@ export default function Composer() {
     axios
       .get(`${BASE_URL}/api/v1/organization/${orgName}/users`, config)
       .then((res) => {
-        console.log(res);
         setMembers(res.data.users.concat(res.data.admins));
       })
       .catch((err) => {
@@ -357,10 +352,11 @@ export default function Composer() {
             <DateInput
               fill
               formatDate={(date) =>
-                date === null ? "" : date.toLocaleDateString()
+                date.toLocaleDateString()
               }
-              parseDate={(str) => new Date(Date.parse(str))}
-              placeholder={"Send Date"}
+              parseDate={(str) =>  new Date(str)}
+              value={sendDate.value}
+                placeholder={"Send Date"}
               onChange={sendDate.onChange}
               popoverProps={{ position: Position.BOTTOM }}
               disabled={!canEdit}
@@ -456,6 +452,8 @@ export default function Composer() {
               }
               values={tags.values}
               onChange={tags.onChange}
+              addOnBlur={true}
+              tagProps={{minimal: true}}
               disabled={!canEdit}
             />
           </div>
@@ -464,7 +462,7 @@ export default function Composer() {
               <Button
                 onClick={save}
                 intent={Intent.PRIMARY}
-                text={`Save as v${versions.length}`}
+                text={`Save as v${versions.length + 1}`}
                 disabled={!canEdit}
               />
             }

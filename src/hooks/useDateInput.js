@@ -1,21 +1,21 @@
 import { useState } from "react";
 
-export default function useDateInput({ initialDate }) {
-  const [date, setDate] = useState(initialDate || null);
+export default function useDateInput(initialDate) {
+  const [value, setValue] = useState(initialDate || null);
 
   function onChange(date) {
-    setDate(date);
+    setValue(date);
   }
 
   function set(date) {
-    setDate(date);
+    setValue(new Date(date));
   }
   function clear() {
-    setDate(null);
+    setValue(null);
   }
 
   return {
-    value: date,
+    value: value,
     onChange: onChange,
     set: set,
     clear: clear,
