@@ -13,6 +13,7 @@ import { Suggest } from "@blueprintjs/select";
 import utils from "../utils";
 import { BASE_URL } from "../constants";
 import axios from "axios";
+import { AppToaster } from "../toaster";
 
 export default function ReviewerManager({
   isOpen,
@@ -25,9 +26,12 @@ export default function ReviewerManager({
   const [tmpMembers, setTempMembers] = useState([]);
 
   async function saveReviewers() {
-      
     let data = {
-      reviewerIds: JSON.stringify(tmpMembers.filter((member) => member.checked).map(member => member._id)),
+      reviewerIds: JSON.stringify(
+        tmpMembers
+          .filter((member) => member.checked)
+          .map((member) => member._id)
+      ),
     };
     let { draftId } = utils.searchToJSON(window.location.search);
     let config = utils.getJWTConfig();
@@ -41,8 +45,19 @@ export default function ReviewerManager({
       );
       console.log(result);
       setIsOpen(false);
+      AppToaster.show({
+        message: "Succesfully updated reviewers",
+        action: {
+          onClick: () => window.location.reload(false),
+          text: "Reload",
+        },
+        intent: Intent.SUCCESS,
+      });
     } catch (err) {
-      console.log(err);
+      AppToaster.show({
+        message: err.message,
+        intent: Intent.DANGER,
+      });
     }
   }
   const toggleCheck = (_id) => (event) => {

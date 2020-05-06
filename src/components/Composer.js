@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import useMedia from "../hooks/useMedia";
 import ReviewerManager from "./ReviewerManager";
+import { AppToaster } from "../toaster";
 
 import {
   Intent,
@@ -16,6 +17,8 @@ import {
   AnchorButton,
   MenuItem,
   Position,
+  Callout,
+  HTMLTable,
 } from "@blueprintjs/core";
 
 import { DateInput, TimePrecision } from "@blueprintjs/datetime";
@@ -28,8 +31,10 @@ import utils from "../utils";
 import axios from "axios";
 import { BASE_URL } from "../constants";
 import { useParams } from "react-router-dom";
+import { store } from "../store";
 
 export default function Composer() {
+  const { state } = useContext(store);
   const columnCount = useMedia(["(min-width: 550px)"], [2], 1);
 
   const { orgName } = useParams();
@@ -136,13 +141,26 @@ export default function Composer() {
     let { draftId } = utils.searchToJSON(window.location.search);
     let config = utils.getJWTConfig();
     try {
-      let result = await axios.post(
+      await axios.post(
         `${BASE_URL}/api/v1/draft/${draftId}/version`,
         data,
         config
       );
+      AppToaster.show({
+        message: "Draft saved",
+        action: {
+          onClick: () => window.location.reload(false),
+          text: "Reload",
+        },
+        intent: Intent.SUCCESS,
+      });
     } catch (err) {
       console.log(err);
+
+      AppToaster.show({
+        message: err.message,
+        intent: Intent.DANGER,
+      });
     }
   }
 
@@ -181,6 +199,52 @@ export default function Composer() {
       });
   }, [orgName]);
 
+  async function approve() {
+    let { draftId } = utils.searchToJSON(window.location.search);
+    const config = utils.getJWTConfig();
+    try {
+      await axios.post(
+        `${BASE_URL}/api/v1/draft/${draftId}/approve`,
+        null,
+        config
+      );
+      AppToaster.show({
+        message: "You've approved this draft",
+        intent: Intent.SUCCESS,
+        action: {
+          onClick: () => window.location.reload(false),
+          text: "Reload",
+        },
+      });
+    } catch (err) {
+      console.log(err.message);
+      AppToaster.show({ message: err.message, intent: Intent.DANGER });
+    }
+  }
+
+  async function reject() {
+    let { draftId } = utils.searchToJSON(window.location.search);
+    const config = utils.getJWTConfig();
+    try {
+      await axios.post(
+        `${BASE_URL}/api/v1/draft/${draftId}/reject`,
+        null,
+        config
+      );
+      AppToaster.show({
+        message: "You've rejected this draft",
+        intent: Intent.SUCCESS,
+        action: {
+          onClick: () => window.location.reload(false),
+          text: "Reload",
+        },
+      });
+    } catch (err) {
+      console.log(err.message);
+      AppToaster.show({ message: err.message, intent: Intent.DANGER });
+    }
+  }
+
   /* STYLES */
 
   const containerStyle = {
@@ -200,16 +264,19 @@ export default function Composer() {
     <div style={containerStyle}>
       <div style={{ padding: "20px" }}>
         <div style={{ border: "solid 1px lightgrey", padding: "20px" }}>
+          <h1>Reviewers</h1>
+          <Divider />
           {draft.reviewers &&
             draft.reviewers.length > 0 &&
             draft.reviewers.map((reviewer) => (
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "24px 3fr 1fr 2fr 2fr",
+                  gridTemplateColumns: "24px 150px 1fr 150px 100px",
                   columnGap: "10px",
                   gridTemplateRows: "24px",
-                  marginBottom: "10px",
+                  margin: "10px 0px",
+                  padding: "0px 10px",
                 }}
               >
                 <div>
@@ -224,6 +291,7 @@ export default function Composer() {
                     alt="profile"
                   />
                 </div>
+
                 <div style={{ display: "table", height: "24px" }}>
                   <div
                     style={{ display: "table-cell", verticalAlign: "middle" }}
@@ -232,11 +300,15 @@ export default function Composer() {
                   </div>
                 </div>
 
-                <div style={{ display: "table", height: "24px" }}>
-                  <div
-                    style={{ display: "table-cell", verticalAlign: "middle" }}
-                  >
-                    {reviewer.version || "Not seen"}
+                <div></div>
+
+                <div style={{ display: "table", height: "48px" }}>
+                  <div style={{ display: "table-cell" }}>
+                    {reviewer.approved ? (
+                      <div style={{ textAlign: "center" }}>Approved</div>
+                    ) : (
+                      <div style={{ textAlign: "center" }}>Not Approved</div>
+                    )}
                   </div>
                 </div>
 
@@ -244,24 +316,28 @@ export default function Composer() {
                   <div
                     style={{ display: "table-cell", verticalAlign: "middle" }}
                   >
-                    {reviewer.lastSeen || "Not seen"}
-                  </div>
-                </div>
-                <div style={{ display: "table", height: "24px" }}>
-                  <div
-                    style={{ display: "table-cell", verticalAlign: "middle" }}
-                  >
-                    {reviewer.approved ? "Approved" : "Not Approved"}
+                    {!state.user ||
+                    reviewer.id !==
+                      state.user._id ? null : reviewer.approved ? (
+                      <Button
+                        text="Reject"
+                        onClick={reject}
+                        intent={Intent.DANGER}
+                      />
+                    ) : (
+                      <Button
+                        text="Approve"
+                        onClick={approve}
+                        intent={Intent.SUCCESS}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
             ))}
+          <Divider />
           <div style={{ textAlign: "center", marginTop: "10px" }}>
-            <Button
-              onClick={() => setIsOpen(true)}
-              text="Add Reviewer"
-              intent={Intent.PRIMARY}
-            />
+            <Button onClick={() => setIsOpen(true)} text="Manage Reviewers" />
             <ReviewerManager
               reviewers={draft.reviewers || []}
               members={members}
@@ -277,6 +353,8 @@ export default function Composer() {
             marginTop: "20px",
           }}
         >
+          <h1>Comments</h1>
+          <Divider />
           {comments.length === 0
             ? "No comments"
             : comments.map((comment) => (
@@ -351,12 +429,10 @@ export default function Composer() {
           <div style={inputStyle}>
             <DateInput
               fill
-              formatDate={(date) =>
-                date.toLocaleDateString()
-              }
-              parseDate={(str) =>  new Date(str)}
+              formatDate={(date) => date.toLocaleDateString()}
+              parseDate={(str) => new Date(str)}
               value={sendDate.value}
-                placeholder={"Send Date"}
+              placeholder={"Send Date"}
               onChange={sendDate.onChange}
               popoverProps={{ position: Position.BOTTOM }}
               disabled={!canEdit}
@@ -453,7 +529,7 @@ export default function Composer() {
               values={tags.values}
               onChange={tags.onChange}
               addOnBlur={true}
-              tagProps={{minimal: true}}
+              tagProps={{ minimal: true }}
               disabled={!canEdit}
             />
           </div>
