@@ -11,6 +11,7 @@ import OrgSignup from "./components/OrgSignup";
 import Admin from "./components/Admin";
 import OrgJoin from "./components/OrgJoin";
 import Nav from "./components/Nav";
+import OrgCreate from "./components/OrgCreate";
 import { StateProvider } from "./store.js";
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <Route path="/signup" component={Signup} />
 
           <Route path="/join" component={OrgJoin} />
+          <Route path="/create" component={OrgCreate} />
         </Switch>
       </Router>
     </StateProvider>

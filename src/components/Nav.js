@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {
   Navbar,
   NavbarGroup,
@@ -12,6 +12,7 @@ import {
   MenuItem,
   Popover,
   Position,
+  Divider,
 } from "@blueprintjs/core";
 import { store, actions } from "../store";
 import { useHistory, useParams } from "react-router-dom";
@@ -23,6 +24,7 @@ export default function Nav() {
   const { state, dispatch } = useContext(store);
   const history = useHistory();
   const { orgName } = useParams();
+  const [organizations, setOrganizations] = useState([]);
 
   const goto = (destination) => () => {
     history.push(destination);
@@ -34,11 +36,20 @@ export default function Nav() {
       .get(`${BASE_URL}/api/v1/auth/`, config)
       .then((response) => {
         dispatch({ type: actions.SET_USER, payload: response.data });
+
+        axios
+          .get(`${BASE_URL}/api/v1/user/organizations`, config)
+          .then((response) => {
+            setOrganizations(response.data.organizations);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
       })
       .catch((err) => {
         console.log(err.message);
       });
-  }, []);
+  }, [dispatch]);
 
   async function logout() {
     if (state.user) {
@@ -85,7 +96,33 @@ export default function Nav() {
   return (
     <Navbar>
       <NavbarGroup align={Alignment.LEFT}>
-        <NavbarHeading>App</NavbarHeading>
+        <NavbarHeading>
+          <Popover
+            modifiers={{ arrow: { enabled: false } }}
+            content={
+              <Menu>
+                {organizations.map((organization) =>
+                  organization.name === orgName ? null : (
+                    <MenuItem
+                      onClick={goto(`/${organization.name}/dashboard`)}
+                      key={organization._id}
+                      text={organization.name}
+                    />
+                  )
+                )}
+                <Divider />
+                <MenuItem
+                  onClick={goto("/create")}
+                  icon="plus"
+                  text="Create Organization"
+                />
+              </Menu>
+            }
+            position={Position.BOTTOM_RIGHT}
+          >
+            <Button text={orgName} rightIcon="double-caret-vertical" />
+          </Popover>
+        </NavbarHeading>
         <NavbarDivider />
         {state.user && (
           <>
