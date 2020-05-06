@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useContext } from "react";
 import {
   Navbar,
   NavbarGroup,
@@ -7,16 +7,139 @@ import {
   Alignment,
   NavbarHeading,
   Classes,
+  Intent,
+  Menu,
+  MenuItem,
+  Popover,
+  Position,
 } from "@blueprintjs/core";
+import { store, actions } from "../store";
+import { useHistory, useParams } from "react-router-dom";
+import axios from "axios";
+import { BASE_URL } from "../constants";
+import utils from "../utils";
 
 export default function Nav() {
+  const { state, dispatch } = useContext(store);
+  const history = useHistory();
+  const { orgName } = useParams();
+
+  const goto = (destination) => () => {
+    history.push(destination);
+  };
+
+  useEffect(() => {
+    const config = utils.getJWTConfig();
+    axios
+      .get(`${BASE_URL}/api/v1/auth/`, config)
+      .then((response) => {
+        dispatch({ type: actions.SET_USER, payload: response.data });
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
+
+  async function logout() {
+    if (state.user) {
+      const config = utils.getJWTConfig();
+      try {
+        await axios.post(`${BASE_URL}/api/v1/auth/logout`, null, config);
+        history.push("/");
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+  }
+
+  async function createDraft() {
+    let config = utils.getJWTConfig();
+    try {
+      let res = await axios.post(
+        BASE_URL + "/api/v1/draft",
+        {
+          orgName,
+        },
+        config
+      );
+      let { draft } = res.data;
+      let draftId = draft._id;
+      history.push(`/${orgName}/compose?draftId=${draftId}`);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  async function logoutAll() {
+    if (state.user) {
+      const config = utils.getJWTConfig();
+      try {
+        await axios.post(`${BASE_URL}/api/v1/auth/logout-all`, null, config);
+        history.push("/");
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+  }
+
   return (
     <Navbar>
       <NavbarGroup align={Alignment.LEFT}>
         <NavbarHeading>App</NavbarHeading>
         <NavbarDivider />
-        <Button className={Classes.MINIMAL} icon="home" text="Home" />
-        <Button className={Classes.MINIMAL} icon="document" text="Files" />
+        {state.user && (
+          <>
+            <Button
+              onClick={goto(`/${orgName}/dashboard`)}
+              className={Classes.MINIMAL}
+              icon="dashboard"
+              text="Dashboard"
+            />
+            <Button
+              onClick={createDraft}
+              className={Classes.MINIMAL}
+              icon="application"
+              text="Create Draft"
+            />
+          </>
+        )}
+      </NavbarGroup>
+      <NavbarGroup align={Alignment.RIGHT}>
+        {state.user ? (
+          <>
+            <Button icon="notifications" className={Classes.MINIMAL} />
+            <Popover
+              content={
+                <Menu>
+                  <MenuItem onClick={logout} icon="log-out" text="Log out" />
+                  <MenuItem
+                    onClick={logoutAll}
+                    icon="globe"
+                    text="Log out of all devices"
+                  />
+                  <MenuItem icon="cog" text="Settings" />
+                </Menu>
+              }
+              position={Position.BOTTOM_LEFT}
+            >
+              <Button icon="caret-down" className={Classes.MINIMAL} />
+            </Popover>
+          </>
+        ) : (
+          <>
+            <Button
+              onClick={goto("/signup")}
+              className={Classes.MINIMAL}
+              text="Sign up"
+            />
+            <Button
+              onClick={goto("/login")}
+              intent={Intent.PRIMARY}
+              rightIcon="log-in"
+              text="Log in"
+            />
+          </>
+        )}
       </NavbarGroup>
     </Navbar>
   );
