@@ -143,10 +143,10 @@ export default function Dashboard() {
                 </td>
 
                 <td style={{ textAlign: "center" }}>
-                  {draft.reviewers.reduce(
-                    (acc, curr) => (curr.approved ? acc++ : acc),
-                    0
-                  )}{" "}
+                  {draft.reviewers.reduce((acc, curr) => {
+                    if (curr.approved) acc++;
+                    return acc;
+                  }, 0)}
                   / {draft.reviewers.length}
                 </td>
 
