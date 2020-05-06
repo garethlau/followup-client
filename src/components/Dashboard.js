@@ -77,16 +77,16 @@ export default function Dashboard() {
           <thead>
             <tr>
               <th style={{ minWidth: "150px" }}>Creator</th>
-              <th>Versions</th>
-              <th>Send Date</th>
-              <th>To</th>
-              <th style={{ width: "250px" }}>Subject</th>
-              <th>Last Modified</th>
+              <th style={{ minWidth: "100px" }}>Versions</th>
+              <th style={{ minWidth: "100px" }}>Send Date</th>
+              <th style={{ minWidth: "250px" }}>To</th>
+              <th style={{ minWidth: "250px" }}>Subject</th>
+              <th style={{ minWidth: "125px" }}>Last Modified</th>
               <th style={{ minWidth: "250px" }}>Latest Commit Message</th>
-              <th>Tags</th>
+              <th style={{ minWidth: "250px" }}>Tags</th>
               <th style={{ minWidth: "150px" }}>Reviewers</th>
-              <th>Approvals</th>
-              <th>Status</th>
+              <th style={{ minWidth: "150px" }}>Approvals</th>
+              <th style={{ minWidth: "100px" }}>Status</th>
             </tr>
           </thead>
           <tbody>
@@ -116,7 +116,7 @@ export default function Dashboard() {
                           <Tag
                             minimal
                             key={index}
-                            style={{ marginRight: "5px" }}
+                            style={{ margin: "0px 5px 5px 0px" }}
                           >
                             {recipient}
                           </Tag>
@@ -125,7 +125,7 @@ export default function Dashboard() {
 
                     <td>{latestVersion ? latestVersion.subject : ""}</td>
 
-                    <td>
+                    <td style={{ textAlign: "center" }}>
                       {latestVersion
                         ? new Date(
                             parseInt(latestVersion.modifiedDate)
@@ -140,8 +140,8 @@ export default function Dashboard() {
                         latestVersion.tags.map((tag, index) => (
                           <Tag
                             minimal
-                            style={{ marginRight: "5px" }}
                             key={index}
+                            style={{ margin: "0px 5px 5px 0px" }}
                           >
                             {tag}
                           </Tag>
@@ -153,7 +153,7 @@ export default function Dashboard() {
                         return (
                           <Tag
                             key={reviewer.id}
-                            style={{ marginRight: "5px" }}
+                            style={{ margin: "0px 5px 5px 0px" }}
                             intent={
                               reviewer.approved ? Intent.SUCCESS : Intent.DANGER
                             }
@@ -178,8 +178,7 @@ export default function Dashboard() {
                     <td>{draft.sent ? "Sent" : "Not Sent"}</td>
                   </tr>
                 );
-              }
-              else return null;
+              } else return null;
             })}
           </tbody>
         </HTMLTable>
