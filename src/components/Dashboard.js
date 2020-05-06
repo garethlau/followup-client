@@ -134,7 +134,7 @@ export default function Dashboard() {
                         intent={
                           reviewer.approved ? Intent.SUCCESS : Intent.DANGER
                         }
-                        minimal={reviewer.id !== state.user._id}
+                        minimal={!state.user || reviewer.id !== state.user._id}
                       >
                         {reviewer.firstName[0] + reviewer.lastName[0]}
                       </Tag>
