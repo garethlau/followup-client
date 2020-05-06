@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import useFormInput from "../hooks/useFormInput";
 import { InputGroup, Button, Intent } from "@blueprintjs/core";
 import axios from "axios";
 import utils from "../utils";
 import { BASE_URL } from "../constants";
 import { useHistory } from "react-router-dom";
+import { store, actions } from "../store";
 
 export default function Signup() {
+  const { dispatch } = useContext(store);
+
   const username = useFormInput("");
   const password = useFormInput("");
   const firstName = useFormInput("");
@@ -26,6 +29,8 @@ export default function Signup() {
       let res = await axios.post(BASE_URL + "/api/v1/auth/signup", data);
       const { user, token } = res.data;
       utils.setJWT(token);
+      dispatch({ type: actions.SET_USER, payload: user });
+
       history.push("/dashboard");
     } catch (err) {
       console.log(err);
