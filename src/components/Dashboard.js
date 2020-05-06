@@ -93,7 +93,7 @@ export default function Dashboard() {
                     )}
                 </td>
 
-                <td style={{ textAlign: "center" }}>
+                <td>
                   {draft.versions.length > 0
                     ? draft.versions[draft.versions.length - 1].subject
                     : ""}
@@ -102,7 +102,7 @@ export default function Dashboard() {
                 <td>
                   {draft.versions.length > 0
                     ? new Date(
-                        Date(
+                        parseInt(
                           draft.versions[draft.versions.length - 1].modifiedDate
                         )
                       ).toLocaleDateString()
