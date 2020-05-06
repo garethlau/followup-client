@@ -381,9 +381,9 @@ export default function Composer() {
                       alt="profile"
                     />
                   </div>
-                  <div style={{ griArea: "name-date" }}>
+                  <div style={{ gridArea: "name-date" }}>
                     {comment.author.firstName} {comment.author.lastName} -{" "}
-                    {comment.date}
+                    {new Date(parseInt(comment.date)).toLocaleDateString()}
                   </div>
                   <div style={{ gridArea: "version" }}> {comment.version}</div>
                   <div style={{ gridArea: "body" }}>{comment.content}</div>
