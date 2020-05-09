@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import "./App.css";
 
@@ -12,13 +12,14 @@ import Admin from "./components/Admin";
 import OrgJoin from "./components/OrgJoin";
 import Nav from "./components/Nav";
 import OrgCreate from "./components/OrgCreate";
-import { StateProvider } from "./store.js";
 
 import axios from "axios";
 import { BASE_URL } from "./constants";
 import { setAccessToken } from "./accessToken";
+import { store, actions } from "./store";
 
 function App() {
+  const { dispatch } = useContext(store);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,9 +28,10 @@ function App() {
         withCredentials: true,
       })
       .then((res) => {
-        console.log(res.data);
-        if (res.data && res.data.accessToken) {
-          setAccessToken(res.data.accessToken);
+        const { accessToken, user } = res.data;
+        if (accessToken && user) {
+          setAccessToken(accessToken);
+          dispatch({ type: actions.SET_USER, payload: user });
         }
       })
       .catch((err) => {
@@ -66,31 +68,29 @@ function App() {
   }
 
   return (
-    <StateProvider>
-      <Router>
-        <Switch>
-          <Route path="/" exact component={Home} />
+    <Router>
+      <Switch>
+        <Route path="/" exact component={Home} />
 
-          <Route path="/get-started" component={OrgSignup} />
-          <Route path="/:orgName/admin" component={Admin} />
+        <Route path="/get-started" component={OrgSignup} />
+        <Route path="/:orgName/admin" component={Admin} />
 
-          <Route path="/:orgName/dashboard">
-            <Nav />
-            <Dashboard />
-          </Route>
+        <Route path="/:orgName/dashboard">
+          <Nav />
+          <Dashboard />
+        </Route>
 
-          <Route path="/:orgName/compose">
-            <Nav />
-            <Composer />
-          </Route>
-          <Route path="/login" component={Login} />
-          <Route path="/signup" component={Signup} />
+        <Route path="/:orgName/compose">
+          <Nav />
+          <Composer />
+        </Route>
+        <Route path="/login" component={Login} />
+        <Route path="/signup" component={Signup} />
 
-          <Route path="/join" component={OrgJoin} />
-          <Route path="/create" component={OrgCreate} />
-        </Switch>
-      </Router>
-    </StateProvider>
+        <Route path="/join" component={OrgJoin} />
+        <Route path="/create" component={OrgCreate} />
+      </Switch>
+    </Router>
   );
 }
 
