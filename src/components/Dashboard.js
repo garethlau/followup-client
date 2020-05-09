@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Tag, Button, Intent, HTMLTable, InputGroup } from "@blueprintjs/core";
+import {
+  Tag,
+  Code,
+  Button,
+  Spinner,
+  Callout,
+  Intent,
+  HTMLTable,
+  InputGroup,
+} from "@blueprintjs/core";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../constants";
@@ -69,10 +78,60 @@ export default function Dashboard() {
   }
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          width: "min-content",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Spinner intent={Intent.PRIMARY} />
+      </div>
+    );
   }
   if (!authorized) {
-    return <div>Not Authorized</div>;
+    return (
+      <div
+        style={{
+          width: "min-content",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Callout icon="disable" title="Not authorized">
+          <div style={{ width: "350px" }}>
+            {state.user ? (
+              <>
+                <p>
+                  You're not a member of this organization. Want in? Ask for
+                  access or switch to an account with permission.
+                </p>
+                <p>
+                  Currently logged in as:{" "}
+                  <Code style={{ marginLeft: "5px" }}>
+                    {state.user.username}
+                  </Code>
+                </p>
+                <Button intent={Intent.PRIMARY} text="Request Access" />
+              </>
+            ) : (
+              <>
+                <p style={{ width: "350px" }}>
+                  You're currently not logged in. You must be logged in to
+                  continue.{" "}
+                </p>
+                <Button intent={Intent.PRIMARY} text="Log in" />
+              </>
+            )}
+          </div>
+        </Callout>
+      </div>
+    );
   }
   return (
     <div style={{ padding: "20px" }}>
