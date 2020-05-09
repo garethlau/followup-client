@@ -34,14 +34,11 @@ export default function ReviewerManager({
       ),
     };
     let { draftId } = utils.searchToJSON(window.location.search);
-    let config = utils.getJWTConfig();
 
-    console.log(data);
     try {
       let result = await axios.post(
         `${BASE_URL}/api/v1/draft/${draftId}/reviewer`,
-        data,
-        config
+        data
       );
       console.log(result);
       setIsOpen(false);

@@ -68,9 +68,8 @@ export default function Composer() {
     let jsonSearch = utils.searchToJSON(window.location.search);
     if (jsonSearch.draftId) {
       // Get data
-      let config = utils.getJWTConfig();
       axios
-        .get(`${BASE_URL}/api/v1/draft/${jsonSearch.draftId}`, config)
+        .get(`${BASE_URL}/api/v1/draft/${jsonSearch.draftId}`)
         .then((res) => {
           let { draft } = res.data;
           setDraft(draft);
@@ -139,13 +138,8 @@ export default function Composer() {
       commitMessage: commitMessage.value,
     };
     let { draftId } = utils.searchToJSON(window.location.search);
-    let config = utils.getJWTConfig();
     try {
-      await axios.post(
-        `${BASE_URL}/api/v1/draft/${draftId}/version`,
-        data,
-        config
-      );
+      await axios.post(`${BASE_URL}/api/v1/draft/${draftId}/version`, data);
       AppToaster.show({
         message: "Draft saved",
         action: {
@@ -170,14 +164,12 @@ export default function Composer() {
       content: comment.value,
       version: currVersion,
     };
-    let config = utils.getJWTConfig();
 
     let { draftId } = utils.searchToJSON(window.location.search);
     try {
       let result = await axios.post(
         `${BASE_URL}/api/v1/draft/${draftId}/comment`,
-        data,
-        config
+        data
       );
       comment.clear();
       setComments(result.data.comments);
@@ -188,9 +180,8 @@ export default function Composer() {
 
   const [members, setMembers] = useState([]);
   useEffect(() => {
-    const config = utils.getJWTConfig();
     axios
-      .get(`${BASE_URL}/api/v1/organization/${orgName}/users`, config)
+      .get(`${BASE_URL}/api/v1/organization/${orgName}/users`)
       .then((res) => {
         setMembers(res.data.users.concat(res.data.admins));
       })
@@ -201,13 +192,8 @@ export default function Composer() {
 
   async function approve() {
     let { draftId } = utils.searchToJSON(window.location.search);
-    const config = utils.getJWTConfig();
     try {
-      await axios.post(
-        `${BASE_URL}/api/v1/draft/${draftId}/approve`,
-        null,
-        config
-      );
+      await axios.post(`${BASE_URL}/api/v1/draft/${draftId}/approve`);
       AppToaster.show({
         message: "You've approved this draft",
         intent: Intent.SUCCESS,
@@ -224,13 +210,8 @@ export default function Composer() {
 
   async function reject() {
     let { draftId } = utils.searchToJSON(window.location.search);
-    const config = utils.getJWTConfig();
     try {
-      await axios.post(
-        `${BASE_URL}/api/v1/draft/${draftId}/reject`,
-        null,
-        config
-      );
+      await axios.post(`${BASE_URL}/api/v1/draft/${draftId}/reject`);
       AppToaster.show({
         message: "You've rejected this draft",
         intent: Intent.SUCCESS,

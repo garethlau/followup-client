@@ -43,11 +43,9 @@ export default function OrgSignup() {
         admins: [user._id],
       };
 
-      const config = utils.getJWTConfig();
       result = await axios.post(
         `${BASE_URL}/api/v1/organization`,
         orgData,
-        config
       );
 
       let { name } = result.data.organization;

@@ -18,10 +18,10 @@ import { store, actions } from "../store";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../constants";
-import utils from "../utils";
+import { setAccessToken } from "../accessToken";
 
 export default function Nav() {
-  const { state } = useContext(store);
+  const { state, dispatch } = useContext(store);
   const history = useHistory();
   const { orgName } = useParams();
   const [organizations, setOrganizations] = useState([]);
@@ -43,9 +43,23 @@ export default function Nav() {
 
   async function logout() {
     if (state.user) {
-      const config = utils.getJWTConfig();
       try {
-        await axios.post(`${BASE_URL}/api/v1/auth/logout`, null, config);
+        await axios.post(`${BASE_URL}/api/v1/auth/logout`, null);
+        dispatch({ type: actions.CLEAR_USER });
+        setAccessToken(null);
+        history.push("/");
+      } catch (err) {
+        console.log(err.message);
+      }
+    }
+  }
+
+  async function logoutAll() {
+    if (state.user) {
+      try {
+        await axios.post(`${BASE_URL}/api/v1/auth/logout-all`);
+        dispatch({ type: actions.CLEAR_USER });
+        setAccessToken(null);
         history.push("/");
       } catch (err) {
         console.log(err.message);
@@ -54,32 +68,15 @@ export default function Nav() {
   }
 
   async function createDraft() {
-    let config = utils.getJWTConfig();
     try {
-      let res = await axios.post(
-        BASE_URL + "/api/v1/draft",
-        {
-          orgName,
-        },
-        config
-      );
+      let res = await axios.post(BASE_URL + "/api/v1/draft", {
+        orgName,
+      });
       let { draft } = res.data;
       let draftId = draft._id;
       history.push(`/${orgName}/compose?draftId=${draftId}`);
     } catch (err) {
-      console.log(err);
-    }
-  }
-
-  async function logoutAll() {
-    if (state.user) {
-      const config = utils.getJWTConfig();
-      try {
-        await axios.post(`${BASE_URL}/api/v1/auth/logout-all`, null, config);
-        history.push("/");
-      } catch (err) {
-        console.log(err.message);
-      }
+      console.log(err.messsage);
     }
   }
 

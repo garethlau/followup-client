@@ -9,12 +9,9 @@ export default function OrgJoin() {
   const orgName = useFormInput("");
 
   async function join() {
-    const config = utils.getJWTConfig();
     try {
       let result = await axios.patch(
-        `${BASE_URL}/api/v1/organization/${orgName.value}/users`,
-        {},
-        config
+        `${BASE_URL}/api/v1/organization/${orgName.value}/users`
       );
       console.log(result);
     } catch (err) {

@@ -4,8 +4,8 @@ import useFormInput from "../hooks/useFormInput";
 import { BASE_URL } from "../constants";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
-import utils from "../utils";
 import { store, actions } from "../store";
+import { setAccessToken } from "../accessToken";
 
 export default function Login() {
   const { dispatch } = useContext(store);
@@ -21,13 +21,13 @@ export default function Login() {
     };
     try {
       let result = await axios.post(BASE_URL + "/api/v1/auth/login", data);
-      const { token, user } = result.data;
-      utils.setJWT(token);
+      const { accessToken, user } = result.data;
+      setAccessToken(accessToken);
       dispatch({ type: actions.SET_USER, payload: user });
-
+      // TODO Update redirect
       history.push("/dashboard");
     } catch (err) {
-      console.log(err);
+      console.log(err.message);
     }
   }
 

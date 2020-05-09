@@ -13,32 +13,23 @@ export default function OrgJoin() {
   const { state } = useContext(store);
 
   async function create() {
+    console.log(state.user);
+    if (!state.user) {
+      // User must be logged in to create an organization
+      return;
+    }
+
+    const data = {
+      name: orgName.value,
+      admins: [state.user._id],
+    };
+
     try {
-      let result = await axios.get(
-        `${BASE_URL}/api/v1/auth`,
-        utils.getJWTConfig()
-      );
-      let userId = result.data._id;
-
-      const data = {
-        name: orgName.value,
-        admins: [userId],
-      };
-
-      result = await axios.post(
-        `${BASE_URL}/api/v1/organization/`,
-        data,
-        utils.getJWTConfig()
-      );
-      console.log(result);
+      let result = await axios.post(`${BASE_URL}/api/v1/organization/`, data);
+      console.log(result)
       history.push(`/${result.data.organization.name}/admin`);
     } catch (err) {
       console.log(err.message);
-      if (err.response) {
-        if (err.response.status === 401) {
-          // Not logged in
-        }
-      }
     }
   }
 

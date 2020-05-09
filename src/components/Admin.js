@@ -11,9 +11,8 @@ export default function Admin() {
   const [admins, setAdmins] = useState([]);
 
   useEffect(() => {
-    const config = utils.getJWTConfig();
     axios
-      .get(`${BASE_URL}/api/v1/organization/${orgName}/users`, config)
+      .get(`${BASE_URL}/api/v1/organization/${orgName}/users`)
       .then((response) => {
         setUsers(response.data.users);
         setAdmins(response.data.admins);
