@@ -52,6 +52,10 @@ export default function Dashboard() {
     console.log(e.target.value);
   }
 
+  const goto = (destination) => () => {
+    history.push(destination);
+  };
+
   function passesFilter(draft) {
     let latestVersion =
       draft.versions.length > 0
@@ -117,7 +121,11 @@ export default function Dashboard() {
                     {state.user.username}
                   </Code>
                 </p>
-                <Button intent={Intent.PRIMARY} text="Request Access" />
+                <Button
+                  intent={Intent.PRIMARY}
+                  text="Request Access"
+                  disabled
+                />
               </>
             ) : (
               <>
@@ -125,7 +133,11 @@ export default function Dashboard() {
                   You're currently not logged in. You must be logged in to
                   continue.{" "}
                 </p>
-                <Button intent={Intent.PRIMARY} text="Log in" />
+                <Button
+                  intent={Intent.PRIMARY}
+                  onClick={goto(`/login?redirect=/${orgName}/dashboard`)}
+                  text="Log in"
+                />
               </>
             )}
           </div>
