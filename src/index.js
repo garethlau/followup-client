@@ -7,6 +7,25 @@ import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "./index.css";
+import axios from "axios";
+import { getAccessToken } from "./accessToken";
+
+// Add a request interceptor
+axios.interceptors.request.use(
+  function (config) {
+    // Do something before request is sent
+    const accessToken = getAccessToken();
+    if (accessToken) {
+      config.headers["authorization"] = `Bearer ${accessToken}`;
+    }
+    console.log(config);
+    return config;
+  },
+  function (error) {
+    // Do something with request error
+    return Promise.reject(error);
+  }
+);
 
 ReactDOM.render(
   <React.StrictMode>
