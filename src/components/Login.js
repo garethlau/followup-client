@@ -6,6 +6,7 @@ import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { store, actions } from "../store";
 import { setAccessToken } from "../accessToken";
+import utils from "../utils";
 
 export default function Login() {
   const { dispatch } = useContext(store);
@@ -15,6 +16,9 @@ export default function Login() {
   const history = useHistory();
 
   async function login() {
+    const search = utils.searchToJSON(history.location.search);
+    const redirect = search.redirect || "/create";
+
     let data = {
       username: username.value,
       password: password.value,
@@ -25,7 +29,7 @@ export default function Login() {
       setAccessToken(accessToken);
       dispatch({ type: actions.SET_USER, payload: user });
       // TODO Update redirect
-      history.push("/dashboard");
+      history.push(redirect);
     } catch (err) {
       console.log(err.message);
     }
