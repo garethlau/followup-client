@@ -21,7 +21,7 @@ import { BASE_URL } from "../constants";
 import utils from "../utils";
 
 export default function Nav() {
-  const { state, dispatch } = useContext(store);
+  const { state } = useContext(store);
   const history = useHistory();
   const { orgName } = useParams();
   const [organizations, setOrganizations] = useState([]);
@@ -31,25 +31,15 @@ export default function Nav() {
   };
 
   useEffect(() => {
-    const config = utils.getJWTConfig();
     axios
-      .get(`${BASE_URL}/api/v1/auth/`, config)
+      .get(`${BASE_URL}/api/v1/user/organizations`)
       .then((response) => {
-        dispatch({ type: actions.SET_USER, payload: response.data });
-
-        axios
-          .get(`${BASE_URL}/api/v1/user/organizations`, config)
-          .then((response) => {
-            setOrganizations(response.data.organizations);
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+        setOrganizations(response.data.organizations);
       })
       .catch((err) => {
-        console.log(err.message);
+        console.log(err);
       });
-  }, [dispatch]);
+  }, []);
 
   async function logout() {
     if (state.user) {
