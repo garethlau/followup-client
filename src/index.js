@@ -9,6 +9,7 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "./index.css";
 import axios from "axios";
 import { getAccessToken } from "./accessToken";
+import { StateProvider } from "./store.js";
 
 // Add a request interceptor
 axios.interceptors.request.use(
@@ -29,7 +30,9 @@ axios.interceptors.request.use(
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <StateProvider>
+      <App />
+    </StateProvider>
   </React.StrictMode>,
   document.getElementById("root")
 );
