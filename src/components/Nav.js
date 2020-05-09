@@ -37,7 +37,7 @@ export default function Nav() {
         setOrganizations(response.data.organizations);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.message);
       });
   }, []);
 
