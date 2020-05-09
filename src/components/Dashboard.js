@@ -3,7 +3,6 @@ import { Tag, Button, Intent, HTMLTable, InputGroup } from "@blueprintjs/core";
 import { useHistory, useParams } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../constants";
-import utils from "../utils";
 import { store } from "../store";
 import useFormInput from "../hooks/useFormInput";
 
@@ -13,6 +12,8 @@ export default function Dashboard() {
   const history = useHistory();
   const { state } = useContext(store);
   const search = useFormInput("");
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
     axios
@@ -20,9 +21,14 @@ export default function Dashboard() {
       .then((response) => {
         console.log(response);
         setDrafts(response.data.drafts);
+        setAuthorized(true);
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.message);
+        setAuthorized(false);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, [orgName]);
 
@@ -62,6 +68,12 @@ export default function Dashboard() {
     );
   }
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  if (!authorized) {
+    return <div>Not Authorized</div>;
+  }
   return (
     <div style={{ padding: "20px" }}>
       <div style={{ width: "250px", marginBottom: "20px" }}>
