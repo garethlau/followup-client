@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
   Tag,
+  ControlGroup,
+  HTMLSelect,
   Code,
   Button,
   Spinner,
@@ -14,6 +16,7 @@ import axios from "axios";
 import { BASE_URL } from "../constants";
 import { store } from "../store";
 import useFormInput from "../hooks/useFormInput";
+import useSelectInput from "../hooks/useSelectInput";
 
 export default function Dashboard() {
   const { orgName } = useParams();
@@ -23,6 +26,7 @@ export default function Dashboard() {
   const search = useFormInput("");
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const orderBy = useSelectInput("Modified Date - ASC");
 
   useEffect(() => {
     axios
@@ -148,11 +152,23 @@ export default function Dashboard() {
   return (
     <div style={{ padding: "20px" }}>
       <div style={{ width: "250px", marginBottom: "20px" }}>
-        <InputGroup
-          onChange={handleQueryChange}
-          value={search.value}
-          placeholder="I'm looking for..."
-        />
+        <ControlGroup>
+          <InputGroup
+            onChange={handleQueryChange}
+            value={search.value}
+            placeholder="I'm looking for..."
+          />
+          <HTMLSelect
+            options={[
+              "Send Date - ASC",
+              "Send Date - DESC",
+              "Modified Date - ASC",
+              "Modified Date - DESC",
+            ]}
+            onChange={orderBy.onChange}
+            value={orderBy.value}
+          />
+        </ControlGroup>
       </div>
 
       <div style={{ overflow: "auto" }}>
@@ -173,96 +189,139 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {drafts.map((draft) => {
-              let latestVersion =
-                draft.versions.length > 0
-                  ? draft.versions[draft.versions.length - 1]
-                  : null;
-              if (passesFilter(draft)) {
-                return (
-                  <tr onClick={edit(draft._id)} key={draft._id}>
-                    <td>
-                      {draft.creator.firstName + " " + draft.creator.lastName}
-                    </td>
-                    <td style={{ textAlign: "center" }}>
-                      {draft.versions.length}
-                    </td>
+            {drafts
+              .sort((a, b) => {
+                let aVers =
+                  a.versions.length > 0
+                    ? a.versions[a.versions.length - 1]
+                    : null;
+                let bVers =
+                  b.versions.length > 0
+                    ? b.versions[b.versions.length - 1]
+                    : null;
 
-                    <td>
-                      {latestVersion &&
-                        new Date(latestVersion.sendDate).toLocaleDateString()}
-                    </td>
+                if (orderBy.value === "Modified Date - ASC") {
+                  if (!aVers && !bVers) return 0;
+                  else if (!bVers) return 1;
+                  else if (!aVers) return -1;
+                  else {
+                    return aVers.modifiedDate >= bVers.modifiedDate ? -1 : 1;
+                  }
+                } else if (orderBy.value === "Modified Date - DESC") {
+                  if (!aVers && !bVers) return 0;
+                  else if (!bVers) return -1;
+                  else if (!aVers) return 1;
+                  else {
+                    return aVers.modifiedDate >= bVers.modifiedDate ? 1 : -1;
+                  }
+                } else if (orderBy.value === "Send Date - ASC") {
+                  if (!aVers && !bVers) return 0;
+                  else if (!bVers) return 1;
+                  else if (!aVers) return -1;
+                  else {
+                    return aVers.sendDate >= bVers.sendDate ? -1 : 1;
+                  }
+                } else if (orderBy.value === "Send Date - DESC") {
+                  if (!aVers && !bVers) return 0;
+                  else if (!bVers) return -1;
+                  else if (!aVers) return 1;
+                  else {
+                    return aVers.sendDate >= bVers.sendDate ? 1 : -1;
+                  }
+                }
+              })
+              .map((draft) => {
+                let latestVersion =
+                  draft.versions.length > 0
+                    ? draft.versions[draft.versions.length - 1]
+                    : null;
+                if (passesFilter(draft)) {
+                  return (
+                    <tr onClick={edit(draft._id)} key={draft._id}>
+                      <td>
+                        {draft.creator.firstName + " " + draft.creator.lastName}
+                      </td>
+                      <td style={{ textAlign: "center" }}>
+                        {draft.versions.length}
+                      </td>
 
-                    <td>
-                      {latestVersion &&
-                        latestVersion.to.map((recipient, index) => (
-                          <Tag
-                            minimal
-                            key={index}
-                            style={{ margin: "0px 5px 5px 0px" }}
-                          >
-                            {recipient}
-                          </Tag>
-                        ))}
-                    </td>
+                      <td>
+                        {latestVersion &&
+                          new Date(latestVersion.sendDate).toLocaleDateString()}
+                      </td>
 
-                    <td>{latestVersion ? latestVersion.subject : ""}</td>
+                      <td>
+                        {latestVersion &&
+                          latestVersion.to.map((recipient, index) => (
+                            <Tag
+                              minimal
+                              key={index}
+                              style={{ margin: "0px 5px 5px 0px" }}
+                            >
+                              {recipient}
+                            </Tag>
+                          ))}
+                      </td>
 
-                    <td style={{ textAlign: "center" }}>
-                      {latestVersion
-                        ? new Date(
-                            parseInt(latestVersion.modifiedDate)
-                          ).toLocaleDateString()
-                        : "N/A"}
-                    </td>
+                      <td>{latestVersion ? latestVersion.subject : ""}</td>
 
-                    <td>{latestVersion && latestVersion.commitMessage}</td>
+                      <td style={{ textAlign: "center" }}>
+                        {latestVersion
+                          ? new Date(
+                              parseInt(latestVersion.modifiedDate)
+                            ).toLocaleDateString()
+                          : "N/A"}
+                      </td>
 
-                    <td>
-                      {latestVersion &&
-                        latestVersion.tags.map((tag, index) => (
-                          <Tag
-                            minimal
-                            key={index}
-                            style={{ margin: "0px 5px 5px 0px" }}
-                          >
-                            {tag}
-                          </Tag>
-                        ))}
-                    </td>
+                      <td>{latestVersion && latestVersion.commitMessage}</td>
 
-                    <td>
-                      {draft.reviewers.map((reviewer) => {
-                        return (
-                          <Tag
-                            key={reviewer.id}
-                            style={{ margin: "0px 5px 5px 0px" }}
-                            intent={
-                              reviewer.approved ? Intent.SUCCESS : Intent.DANGER
-                            }
-                            minimal={
-                              !state.user || reviewer.id !== state.user._id
-                            }
-                          >
-                            {reviewer.firstName[0] + reviewer.lastName[0]}
-                          </Tag>
-                        );
-                      })}
-                    </td>
+                      <td>
+                        {latestVersion &&
+                          latestVersion.tags.map((tag, index) => (
+                            <Tag
+                              minimal
+                              key={index}
+                              style={{ margin: "0px 5px 5px 0px" }}
+                            >
+                              {tag}
+                            </Tag>
+                          ))}
+                      </td>
 
-                    <td style={{ textAlign: "center" }}>
-                      {draft.reviewers.reduce((acc, curr) => {
-                        if (curr.approved) acc++;
-                        return acc;
-                      }, 0)}
-                      / {draft.reviewers.length}
-                    </td>
+                      <td>
+                        {draft.reviewers.map((reviewer) => {
+                          return (
+                            <Tag
+                              key={reviewer.id}
+                              style={{ margin: "0px 5px 5px 0px" }}
+                              intent={
+                                reviewer.approved
+                                  ? Intent.SUCCESS
+                                  : Intent.DANGER
+                              }
+                              minimal={
+                                !state.user || reviewer.id !== state.user._id
+                              }
+                            >
+                              {reviewer.firstName[0] + reviewer.lastName[0]}
+                            </Tag>
+                          );
+                        })}
+                      </td>
 
-                    <td>{draft.sent ? "Sent" : "Not Sent"}</td>
-                  </tr>
-                );
-              } else return null;
-            })}
+                      <td style={{ textAlign: "center" }}>
+                        {draft.reviewers.reduce((acc, curr) => {
+                          if (curr.approved) acc++;
+                          return acc;
+                        }, 0)}
+                        / {draft.reviewers.length}
+                      </td>
+
+                      <td>{draft.sent ? "Sent" : "Not Sent"}</td>
+                    </tr>
+                  );
+                } else return null;
+              })}
           </tbody>
         </HTMLTable>
       </div>
