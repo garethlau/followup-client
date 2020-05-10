@@ -1,11 +1,11 @@
 import React, { useContext } from "react";
 import { InputGroup, Button, Intent } from "@blueprintjs/core";
 import useFormInput from "../hooks/useFormInput";
-import utils from "../utils";
 import axios from "axios";
 import { BASE_URL } from "../constants";
 import { store } from "../store";
 import { useHistory } from "react-router-dom";
+import { AppToaster } from "../toaster";
 
 export default function OrgJoin() {
   const history = useHistory();
@@ -13,9 +13,24 @@ export default function OrgJoin() {
   const { state } = useContext(store);
 
   async function create() {
-    console.log(state.user);
     if (!state.user) {
       // User must be logged in to create an organization
+      AppToaster.show({
+        message: "You need an account to create an organization.",
+        action: {
+          onClick: () => history.push("/get-started"),
+          text: "Get Started",
+        },
+        intent: Intent.DANGER,
+      });
+      return;
+    }
+
+    if (orgName.value.trim() === "") {
+      AppToaster.show({
+        message: "Organization name cannot be blank",
+        intent: Intent.DANGER,
+      });
       return;
     }
 
@@ -26,10 +41,19 @@ export default function OrgJoin() {
 
     try {
       let result = await axios.post(`${BASE_URL}/api/v1/organization/`, data);
-      console.log(result)
-      history.push(`/${result.data.organization.name}/admin`);
+      AppToaster.show({
+        message:
+          "Successfully created organization. Redirecting to admin page.",
+        intent: Intent.SUCCESS,
+      });
+      setTimeout(() => {
+        history.push(`/${result.data.organization.name}/admin`);
+      }, 3000);
     } catch (err) {
-      console.log(err.message);
+      AppToaster.show({
+        message: err.message,
+        intent: Intent.DANGER,
+      });
     }
   }
 
