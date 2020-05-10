@@ -1,8 +1,7 @@
 import React, { useState, useContext } from "react";
-import { InputGroup, Button, Intent } from "@blueprintjs/core";
+import { InputGroup, Button, Intent, Tooltip } from "@blueprintjs/core";
 import useFormInput from "../hooks/useFormInput";
 import { BASE_URL } from "../constants";
-import utils from "../utils";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { AppToaster } from "../toaster";
@@ -10,19 +9,21 @@ import { setAccessToken } from "../accessToken";
 import { store, actions } from "../store";
 
 export default function OrgSignup() {
-  const { state, dispatch } = useContext(store);
+  const {  dispatch } = useContext(store);
   const history = useHistory();
   const username = useFormInput("");
   const firstName = useFormInput("");
   const lastName = useFormInput("");
   const password = useFormInput("");
   const email = useFormInput("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const orgName = useFormInput("");
 
   const [stepNum, setStepNum] = useState(0);
 
   async function create() {
+    let user = null;
     const signupData = {
       username: username.value,
       password: password.value,
@@ -37,7 +38,8 @@ export default function OrgSignup() {
         signupData
       );
 
-      let { user, accessToken } = result.data;
+      let { accessToken } = result.data;
+      user = result.data.user;
       if (!accessToken || !user) {
         // Something went wrong
         AppToaster.show({
@@ -50,24 +52,38 @@ export default function OrgSignup() {
 
       setAccessToken(accessToken);
       dispatch({ type: actions.SET_USER, payload: user });
-
-      const orgData = {
-        name: orgName.value,
-        admins: [user._id],
-      };
-
-      result = await axios.post(`${BASE_URL}/api/v1/organization`, orgData);
-
-      let { name } = result.data.organization;
-      history.push(`${name}/admin`);
     } catch (err) {
-      console.log(err.messsage);
       if (err.response.status === 422) {
         AppToaster.show({
           message: err.response.data.message,
           intent: Intent.DANGER,
         });
       }
+    }
+
+    const orgData = {
+      name: orgName.value,
+      admins: [user._id],
+    };
+
+    try {
+      let result = await axios.post(`${BASE_URL}/api/v1/organization`, orgData);
+      let { name } = result.data.organization;
+      AppToaster.show({
+        message:
+          "Your account and organization have been created. Redirecting to admin page.",
+        intent: Intent.SUCCESS,
+      });
+      setTimeout(() => {
+        history.push(`${name}/admin`);
+      }, 3000);
+    } catch (err) {
+      console.log(err.messsage);
+      AppToaster.show({
+        message:
+          "There was an error creating the organization. Please try again later.",
+        intent: Intent.DANGER,
+      });
     }
   }
 
@@ -98,6 +114,19 @@ export default function OrgSignup() {
     }
   };
 
+  function handleLockClick() {
+    setShowPassword(!showPassword);
+  }
+  const lockButton = (
+    <Tooltip content={`${showPassword ? "Hide" : "Show"} Password`}>
+      <Button
+        icon={showPassword ? "unlock" : "lock"}
+        intent={Intent.WARNING}
+        minimal={true}
+        onClick={handleLockClick}
+      />
+    </Tooltip>
+  );
   if (stepNum === 0) {
     return (
       <div>
@@ -142,6 +171,8 @@ export default function OrgSignup() {
             value={password.value}
             onChange={password.onChange}
             style={inputStyle}
+            rightElement={lockButton}
+            type={showPassword ? "text" : "password"}
           />
           <div style={{ textAlign: "right" }}>
             <Button
@@ -167,8 +198,8 @@ export default function OrgSignup() {
             padding: "30px",
           }}
         >
-          <h1>Create Organization</h1>
-
+          <h1>Create organization</h1>
+          <p>You will automatically added as an admin to this organization.</p>
           <InputGroup
             placeholder="Organization Name"
             value={orgName.value}
