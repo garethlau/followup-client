@@ -314,8 +314,8 @@ export default function Composer() {
               </div>
             )) : "No assigned reviewers."}
           <Divider />
-          <div style={{ textAlign: "center", marginTop: "10px" }}>
-            <Button onClick={() => setIsOpen(true)} text="Manage Reviewers" />
+          <div style={{ textAlign: "right", marginTop: "10px" }}>
+            <Button intent={Intent.PRIMARY} onClick={() => setIsOpen(true)} text="Manage Reviewers" />
             <ReviewerManager
               updated={updated}
               setUpdated={setUpdated}
