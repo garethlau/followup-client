@@ -278,8 +278,8 @@ export default function Composer() {
 
                 <div></div>
 
-                <div style={{ display: "table", height: "48px" }}>
-                  <div style={{ display: "table-cell" }}>
+                <div style={{ display: "table", height: "24px" }}>
+                  <div style={{ display: "table-cell", verticalAlign: "middle" }}>
                     {reviewer.approved ? (
                       <div style={{ textAlign: "center" }}>Approved</div>
                     ) : (
@@ -305,6 +305,7 @@ export default function Composer() {
                         text="Approve"
                         onClick={approve}
                         intent={Intent.SUCCESS}
+                        small
                       />
                     )}
                   </div>
