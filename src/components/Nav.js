@@ -111,7 +111,7 @@ export default function Nav() {
           />
         </NavbarHeading>
         <NavbarDivider />
-        {state.user && (
+        {state.user && orgName && (
           <>
             <Button
               onClick={goto(`/${orgName}/dashboard`)}
