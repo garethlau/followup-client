@@ -43,7 +43,7 @@ export default function Composer() {
   const [versions, setVersions] = useState([]);
   const subject = useFormInput("");
   const from = useFormInput("");
-  const sendDate = useDateInput(Date());
+  const sendDate = useDateInput(new Date());
   const commitMessage = useFormInput("");
   const to = useTagInput();
   const cc = useTagInput();
