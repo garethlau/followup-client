@@ -83,33 +83,33 @@ export default function Nav() {
   return (
     <Navbar>
       <NavbarGroup align={Alignment.LEFT}>
-        <NavbarHeading>
-          <Popover
-            modifiers={{ arrow: { enabled: false } }}
-            content={
-              <Menu>
-                {organizations.map((organization) =>
-                  organization.name === orgName ? null : (
-                    <MenuItem
-                      onClick={goto(`/${organization.name}/dashboard`)}
-                      key={organization._id}
-                      text={organization.name}
-                    />
-                  )
-                )}
-                <Divider />
-                <MenuItem
-                  onClick={goto("/create")}
-                  icon="plus"
-                  text="Create Organization"
-                />
-              </Menu>
-            }
-            target={<Button text={orgName} rightIcon="double-caret-vertical" />}
-            position={Position.BOTTOM_RIGHT}
-            minimal
-          />
-        </NavbarHeading>
+        <NavbarHeading>Followup</NavbarHeading>
+        <NavbarDivider />
+        <Popover
+          modifiers={{ arrow: { enabled: false } }}
+          content={
+            <Menu>
+              {organizations.map((organization) =>
+                organization.name === orgName ? null : (
+                  <MenuItem
+                    onClick={goto(`/${organization.name}/dashboard`)}
+                    key={organization._id}
+                    text={organization.name}
+                  />
+                )
+              )}
+              <Divider />
+              <MenuItem
+                onClick={goto("/create")}
+                icon="plus"
+                text="Create Organization"
+              />
+            </Menu>
+          }
+          target={<Button text={orgName} rightIcon="double-caret-vertical" />}
+          position={Position.BOTTOM_RIGHT}
+          minimal
+        />
         <NavbarDivider />
         {state.user && orgName && (
           <>
