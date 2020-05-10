@@ -71,22 +71,21 @@ function App() {
     <Router>
       <Switch>
         <Route path="/" exact component={Home} />
-
         <Route path="/get-started" component={OrgSignup} />
-        <Route path="/:orgName/admin" component={Admin} />
-
+        <Route path="/:orgName/admin">
+          <Nav />
+          <Admin />
+        </Route>
         <Route path="/:orgName/dashboard">
           <Nav />
           <Dashboard />
         </Route>
-
         <Route path="/:orgName/compose">
           <Nav />
           <Composer />
         </Route>
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Signup} />
-
         <Route path="/join" component={OrgJoin} />
         <Route path="/create" component={OrgCreate} />
       </Switch>
