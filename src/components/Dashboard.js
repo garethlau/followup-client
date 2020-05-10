@@ -32,7 +32,7 @@ export default function Dashboard() {
     axios
       .get(`${BASE_URL}/api/v1/organization/${orgName}/drafts`)
       .then((response) => {
-        console.log(response);
+        // console.log(response);
         setDrafts(response.data.drafts);
         setAuthorized(true);
       })
@@ -53,7 +53,6 @@ export default function Dashboard() {
 
   function handleQueryChange(e) {
     search.onChange(e);
-    console.log(e.target.value);
   }
 
   const goto = (destination) => () => {
