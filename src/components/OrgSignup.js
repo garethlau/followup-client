@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { InputGroup, Button, Intent } from "@blueprintjs/core";
 import useFormInput from "../hooks/useFormInput";
 import { BASE_URL } from "../constants";
@@ -6,8 +6,11 @@ import utils from "../utils";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 import { AppToaster } from "../toaster";
+import { setAccessToken } from "../accessToken";
+import { store, actions } from "../store";
 
 export default function OrgSignup() {
+  const { state, dispatch } = useContext(store);
   const history = useHistory();
   const username = useFormInput("");
   const firstName = useFormInput("");
@@ -33,9 +36,20 @@ export default function OrgSignup() {
         `${BASE_URL}/api/v1/auth/signup`,
         signupData
       );
-      let { user, token } = result.data;
-      utils.setJWT(token);
-      console.log(user);
+
+      let { user, accessToken } = result.data;
+      if (!accessToken || !user) {
+        // Something went wrong
+        AppToaster.show({
+          message:
+            "There was an error creating your account. Please try again later.",
+          intent: Intent.DANGER,
+        });
+        return;
+      }
+
+      setAccessToken(accessToken);
+      dispatch({ type: actions.SET_USER, payload: user });
 
       const orgData = {
         name: orgName.value,
@@ -47,7 +61,13 @@ export default function OrgSignup() {
       let { name } = result.data.organization;
       history.push(`${name}/admin`);
     } catch (err) {
-      console.log(err);
+      console.log(err.messsage);
+      if (err.response.status === 422) {
+        AppToaster.show({
+          message: err.response.data.message,
+          intent: Intent.DANGER,
+        });
+      }
     }
   }
 
