@@ -18,6 +18,8 @@ import { BASE_URL } from "./constants";
 import { setAccessToken } from "./accessToken";
 import { store, actions } from "./store";
 
+import { Spinner, Intent } from "@blueprintjs/core";
+
 function App() {
   const { dispatch } = useContext(store);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,19 @@ function App() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div
+        style={{
+          width: "min-content",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+        }}
+      >
+        <Spinner intent={Intent.NONE} />
+      </div>
+    );
   }
 
   return (
