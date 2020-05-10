@@ -59,12 +59,29 @@ export default function OrgJoin() {
 
   return (
     <div>
-      <InputGroup
-        placeholder="Organization Name"
-        value={orgName.value}
-        onChange={orgName.onChange}
-      />
-      <Button intent={Intent.PRIMARY} onClick={create} text="Create" />
+      <div
+        style={{
+          width: "550px",
+          height: "auto",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          padding: "30px",
+        }}
+      >
+        <h1>Create an organization</h1>
+        <p>You will automatically be added as an admin to this organization.</p>
+        <InputGroup
+          placeholder="Organization Name"
+          value={orgName.value}
+          onChange={orgName.onChange}
+          style={{ marginBottom: "20px" }}
+        />
+        <div style={{ textAlign: "right" }}>
+          <Button intent={Intent.PRIMARY} onClick={create} text="Create" />
+        </div>
+      </div>
     </div>
   );
 }
