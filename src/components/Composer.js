@@ -417,6 +417,7 @@ export default function Composer() {
               onChange={sendDate.onChange}
               popoverProps={{ position: Position.BOTTOM }}
               disabled={!canEdit}
+              maxDate={new Date(1893562264171)}
             />
           </div>
           <InputGroup
