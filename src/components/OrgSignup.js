@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { InputGroup, Button, Intent } from "@blueprintjs/core";
 import useFormInput from "../hooks/useFormInput";
 import { BASE_URL } from "../constants";
 import utils from "../utils";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import { AppToaster } from "../toaster";
 
 export default function OrgSignup() {
   const history = useHistory();
@@ -16,9 +17,7 @@ export default function OrgSignup() {
 
   const orgName = useFormInput("");
 
-  const inputStyle = {
-    marginBottom: "10px",
-  };
+  const [stepNum, setStepNum] = useState(0);
 
   async function create() {
     const signupData = {
@@ -35,18 +34,15 @@ export default function OrgSignup() {
         signupData
       );
       let { user, token } = result.data;
-          utils.setJWT(token);
-          console.log(user)
+      utils.setJWT(token);
+      console.log(user);
 
       const orgData = {
         name: orgName.value,
         admins: [user._id],
       };
 
-      result = await axios.post(
-        `${BASE_URL}/api/v1/organization`,
-        orgData,
-      );
+      result = await axios.post(`${BASE_URL}/api/v1/organization`, orgData);
 
       let { name } = result.data.organization;
       history.push(`${name}/admin`);
@@ -55,52 +51,124 @@ export default function OrgSignup() {
     }
   }
 
-  return (
-    <div>
-      <div style={{ width: "500px" }}>
-        Create an account
-        <InputGroup
-          placeholder="Username"
-          value={username.value}
-          onChange={username.onChange}
-          style={inputStyle}
-        />
-        <InputGroup
-          placeholder="Password"
-          value={password.value}
-          onChange={password.onChange}
-          style={inputStyle}
-        />
-        <InputGroup
-          placeholder="Email"
-          value={email.value}
-          onChange={email.onChange}
-          style={inputStyle}
-        />
-        <InputGroup
-          placeholder="First Name"
-          value={firstName.value}
-          onChange={firstName.onChange}
-          style={inputStyle}
-        />
-        <InputGroup
-          placeholder="Last Name"
-          value={lastName.value}
-          onChange={lastName.onChange}
-          style={inputStyle}
-        />
-        <InputGroup
-          placeholder="Organization Name"
-          value={orgName.value}
-          onChange={orgName.onChange}
-          style={inputStyle}
-        />
+  function validateForm() {
+    if (firstName.value.trim() === "") return "First name cannot be blank.";
+    if (lastName.value.trim() === "") return "Last name cannot be blank.";
+    if (email.value.trim() === "") return "Email cannot be blank.";
+    if (username.value.trim() === "") return "Username cannot be blank.";
+    if (password.value.trim() === "") return "Password cannot be blank.";
+  }
+
+  const inputStyle = { marginBottom: "20px" };
+  const changeStepNum = (curr, next) => () => {
+    console.log(curr, next);
+    if (curr === 0) {
+      // Check for valid form entries
+      let errorMessage = validateForm();
+      if (errorMessage) {
+        AppToaster.show({
+          message: errorMessage,
+          intent: Intent.DANGER,
+        });
+      } else {
+        setStepNum(next);
+      }
+    } else {
+      setStepNum(next);
+    }
+  };
+
+  if (stepNum === 0) {
+    return (
+      <div>
+        <div
+          style={{
+            width: "550px",
+            height: "auto",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: "30px",
+          }}
+        >
+          <h1>First, create an account</h1>
+          <InputGroup
+            placeholder="First Name"
+            value={firstName.value}
+            onChange={firstName.onChange}
+            style={inputStyle}
+          />
+          <InputGroup
+            placeholder="Last Name"
+            value={lastName.value}
+            onChange={lastName.onChange}
+            style={inputStyle}
+          />
+          <InputGroup
+            placeholder="Email"
+            value={email.value}
+            onChange={email.onChange}
+            style={inputStyle}
+          />
+          <InputGroup
+            placeholder="Username"
+            value={username.value}
+            onChange={username.onChange}
+            style={inputStyle}
+          />
+          <InputGroup
+            placeholder="Password"
+            value={password.value}
+            onChange={password.onChange}
+            style={inputStyle}
+          />
+          <div style={{ textAlign: "right" }}>
+            <Button
+              intent={Intent.PRIMARY}
+              onClick={changeStepNum(0, 1)}
+              text="Next"
+            />
+          </div>
+        </div>
       </div>
-      <Button
-        intent={Intent.PRIMARY}
-        onClick={create}
-        text="Create Organization"
-      />
-    </div>
-  );
+    );
+  } else if (stepNum === 1) {
+    return (
+      <div>
+        <div
+          style={{
+            width: "550px",
+            height: "auto",
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            padding: "30px",
+          }}
+        >
+          <h1>Create Organization</h1>
+
+          <InputGroup
+            placeholder="Organization Name"
+            value={orgName.value}
+            onChange={orgName.onChange}
+            style={inputStyle}
+          />
+          <div style={{ textAlign: "right" }}>
+            <Button
+              style={{ marginRight: "5px" }}
+              onClick={changeStepNum(1, 0)}
+              text="Go Back"
+            />
+            <Button
+              intent={Intent.PRIMARY}
+              onClick={create}
+              text="Create Organization"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
