@@ -101,6 +101,7 @@ export default function Composer() {
 
   // Sset the data
   function setVersionData(data) {
+    if (!data) return; 
     subject.setValue(data.subject);
     sendDate.set(data.sendDate);
     to.set(data.to);
