@@ -299,6 +299,7 @@ export default function Composer() {
                         text="Reject"
                         onClick={reject}
                         intent={Intent.DANGER}
+                        small
                       />
                     ) : (
                       <Button
