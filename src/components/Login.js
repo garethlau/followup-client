@@ -31,7 +31,9 @@ export default function Login() {
       password: password.value,
     };
     try {
-      let result = await axios.post(BASE_URL + "/api/v1/auth/login", data);
+      let result = await axios.post(BASE_URL + "/api/v1/auth/login", data, {
+        withCredentials: true,
+      });
       const { accessToken, user } = result.data;
       if (accessToken) {
         setAccessToken(accessToken);
