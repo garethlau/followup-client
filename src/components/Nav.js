@@ -105,10 +105,10 @@ export default function Nav() {
                 />
               </Menu>
             }
+            target={<Button text={orgName} rightIcon="double-caret-vertical" />}
             position={Position.BOTTOM_RIGHT}
-          >
-            <Button text={orgName} rightIcon="double-caret-vertical" />
-          </Popover>
+            minimal
+          />
         </NavbarHeading>
         <NavbarDivider />
         {state.user && (
