@@ -130,6 +130,7 @@ export default function Composer() {
     let data = {
       subject: subject.value,
       sendDate: sendDate.value,
+      from: from.value,
       to: to.values,
       cc: cc.values,
       bcc: bcc.values,
