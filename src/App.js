@@ -50,7 +50,6 @@ function App() {
           withCredentials: true,
         })
         .then((res) => {
-          console.log(res.data);
           if (res.data && res.data.accessToken) {
             setAccessToken(res.data.accessToken);
           }
