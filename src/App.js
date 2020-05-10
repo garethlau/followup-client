@@ -12,13 +12,15 @@ import Admin from "./components/Admin";
 import OrgJoin from "./components/OrgJoin";
 import Nav from "./components/Nav";
 import OrgCreate from "./components/OrgCreate";
+import Product from "./components/Product";
+import StatelessNav from "./components/StatelessNav";
 
 import axios from "axios";
 import { BASE_URL } from "./constants";
 import { setAccessToken } from "./accessToken";
 import { store, actions } from "./store";
 
-import { Spinner, Intent } from "@blueprintjs/core";
+import { Spinner, Intent, Button } from "@blueprintjs/core";
 
 function App() {
   const { dispatch } = useContext(store);
@@ -83,11 +85,29 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route path="/" exact component={Home} />
-        <Route path="/get-started" component={OrgSignup} />
+        <Route path="/" exact>
+          <StatelessNav />
+          <Home />
+        </Route>
+        <Route path="/product">
+          <StatelessNav />
+          <Product />
+        </Route>
+        <Route path="/get-started">
+          <StatelessNav />
+          <OrgSignup />
+        </Route>
         <Route path="/:orgName/admin">
           <Nav />
           <Admin />
+        </Route>
+        <Route path="/join">
+          <Nav />
+          <OrgJoin />
+        </Route>
+        <Route path="/create">
+          <Nav />
+          <OrgCreate />
         </Route>
         <Route path="/:orgName/dashboard">
           <Nav />
@@ -99,8 +119,6 @@ function App() {
         </Route>
         <Route path="/login" component={Login} />
         <Route path="/signup" component={Signup} />
-        <Route path="/join" component={OrgJoin} />
-        <Route path="/create" component={OrgCreate} />
       </Switch>
     </Router>
   );
