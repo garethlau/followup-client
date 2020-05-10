@@ -16,6 +16,8 @@ import axios from "axios";
 import { AppToaster } from "../toaster";
 
 export default function ReviewerManager({
+  updated,
+  setUpdated,
   isOpen,
   setIsOpen,
   members,
@@ -44,12 +46,9 @@ export default function ReviewerManager({
       setIsOpen(false);
       AppToaster.show({
         message: "Succesfully updated reviewers",
-        action: {
-          onClick: () => window.location.reload(false),
-          text: "Reload",
-        },
         intent: Intent.SUCCESS,
       });
+      setUpdated(updated + 1);
     } catch (err) {
       AppToaster.show({
         message: err.message,

@@ -30,15 +30,15 @@ import RichTextEditor, { EditorValue } from "react-rte";
 import utils from "../utils";
 import axios from "axios";
 import { BASE_URL } from "../constants";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import { store } from "../store";
 
 export default function Composer() {
   const { state } = useContext(store);
   const columnCount = useMedia(["(min-width: 550px)"], [2], 1);
-
+  const history = useHistory();
   const { orgName } = useParams();
-
+  const [updated, setUpdated] = useState(0);
   // Version and editor state
   const [versions, setVersions] = useState([]);
   const subject = useFormInput("");
@@ -93,7 +93,7 @@ export default function Composer() {
           console.log(err);
         });
     }
-  }, []);
+  }, [updated]);
 
   function onBodyChange(value) {
     setBody(value);
@@ -143,11 +143,12 @@ export default function Composer() {
       AppToaster.show({
         message: "Draft saved",
         action: {
-          onClick: () => window.location.reload(false),
-          text: "Reload",
+          onClick: () => history.push(`/${orgName}/dashboard`),
+          text: "Go to dashboard",
         },
         intent: Intent.SUCCESS,
       });
+      setUpdated(updated + 1);
     } catch (err) {
       console.log(err);
 
@@ -197,11 +198,8 @@ export default function Composer() {
       AppToaster.show({
         message: "You've approved this draft",
         intent: Intent.SUCCESS,
-        action: {
-          onClick: () => window.location.reload(false),
-          text: "Reload",
-        },
       });
+      setUpdated(updated + 1);
     } catch (err) {
       console.log(err.message);
       AppToaster.show({ message: err.message, intent: Intent.DANGER });
@@ -215,11 +213,8 @@ export default function Composer() {
       AppToaster.show({
         message: "You've rejected this draft",
         intent: Intent.SUCCESS,
-        action: {
-          onClick: () => window.location.reload(false),
-          text: "Reload",
-        },
       });
+      setUpdated(updated + 1);
     } catch (err) {
       console.log(err.message);
       AppToaster.show({ message: err.message, intent: Intent.DANGER });
@@ -248,7 +243,7 @@ export default function Composer() {
           <h1>Reviewers</h1>
           <Divider />
           {draft.reviewers &&
-            draft.reviewers.length > 0 &&
+            draft.reviewers.length > 0 ?
             draft.reviewers.map((reviewer) => (
               <div
                 style={{
@@ -315,11 +310,13 @@ export default function Composer() {
                   </div>
                 </div>
               </div>
-            ))}
+            )) : "No assigned reviewers."}
           <Divider />
           <div style={{ textAlign: "center", marginTop: "10px" }}>
             <Button onClick={() => setIsOpen(true)} text="Manage Reviewers" />
             <ReviewerManager
+              updated={updated}
+              setUpdated={setUpdated}
               reviewers={draft.reviewers || []}
               members={members}
               isOpen={isOpen}
