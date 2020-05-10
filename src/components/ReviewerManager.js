@@ -42,7 +42,7 @@ export default function ReviewerManager({
         `${BASE_URL}/api/v1/draft/${draftId}/reviewer`,
         data
       );
-      console.log(result);
+      // console.log(result);
       setIsOpen(false);
       AppToaster.show({
         message: "Succesfully updated reviewers",
@@ -67,7 +67,6 @@ export default function ReviewerManager({
   };
 
   useEffect(() => {
-    console.log(members, reviewers);
     setTempMembers(
       members.map((member) => {
         return {
